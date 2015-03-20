@@ -102,10 +102,10 @@ class Client:
 
     def receive_message(self, message):
         obj = json.loads(message)
-        time = obj["Timestamp"]
-        sender = obj["Sender"]
-        response = obj["Response"]
-        body = obj["Content"]
+        time = obj["Tidsstempel"]
+        sender = obj["Avsender"]
+        response = obj["Svar"]
+        body = obj["Innhold"]
 
         if response == "History" and (len(body) > 1):
             for i in body:
