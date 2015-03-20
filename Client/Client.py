@@ -80,13 +80,6 @@ class Client:
         # TODO: Handle disconnection
         self.send(self.parse({'request':'logout'}))
 
-    def receive_message(self, message):
-        # TODO: Handle incoming message
-        pass
-
-    def send_payload(self, data):
-        # TODO: Handle sending of a payload
-        pass
 
 
 if __name__ == '__main__':
