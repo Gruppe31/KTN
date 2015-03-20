@@ -1,17 +1,50 @@
 # -*- coding: utf-8 -*-
 import SocketServer
-import json
-import threading
-import time
-import re
+import datetime
 
-allMessages = []
-users = []
-#Globale variabler som holder alle meldingene som blir sendt av alle clientene. 
-#Må være global for å ha mulighet til å dele data mellom alle ClientHandler-trådene.
-#Alt som legges til i allMessages vil bli vist til alle brukerne
+import time
+import json
+
+class userHandler():
+
+    def __init__(self):
+        self.connections = []
+        self.users =[]
+        self.history = []
+
+
+    def addUser(self, user):
+        self.users.append(user)
+
+    def hasUser(self, user):
+        for i in self.users:
+            if i == user:
+                return True
+        return False
+
+    def removeUser(self, user):
+        self.users.remove(user)
+
+    def getUsers(self):
+        return self.users
+
+    def addConnection(self, handler):
+        self.connections.append(handler)
+
+    def getConnections(self):
+        return self.connections
+
+    def removeConnection(self, conn):
+        self.connections.remove(conn)
+    def addMessage(self, message):
+        self.history.append(message)
+
+    def getHistory(self):
+        return self.history
+
 
 class ClientHandler(SocketServer.BaseRequestHandler):
+
     """
     This is the ClientHandler class. Everytime a new client connects to the
     server, a new ClientHandler object will be created. This class represents
@@ -19,98 +52,112 @@ class ClientHandler(SocketServer.BaseRequestHandler):
     logic for the server, you must write it outside this class
     """
 
-    global allMessages
-    global users
-
-    def broadcast(self, data):
-        allMessages.append(data)
-    #sender data til alle klienter
-
     def handle(self):
+        handler = userHandler()
+        user = ''
         """
         This method handles the connection between a client and the server.
         """
         self.ip = self.client_address[0]
         self.port = self.client_address[1]
         self.connection = self.request
-        self.logged_in = False
-
-        #si ifra at en ny klient har koblet til serveren
-        print 'Client connected @' + self.ip + ':' + str(self.port)
-
-        #så man vet hvor mange av meldingene man har allerede har sendt
-        self.sentdata = 0
-
-        #få send_Updates til å fungere i en tråd
-        t = threading.Thread(target = self.send_Updates)
-        t.setDaemon = true
-        t.start()
 
         # Loop that listens for messages from the client
         while True:
+            hasLoggedIn = False
             received_string = self.connection.recv(4096)
-            data = received_string.strip()
-            # TODO: Add handling of received payload from client
-            #sjekker om data eksisterer, recv kan returnere ved frakobling
-            if data:
-                self.broadcast(data)
-                print data
+            if type(received_string) != str:
+                received_string = self.connection.recv(4096)
+                try:
+                    jrec = json.loads(received_string)
+                    body = jrec["content"].encode()
+                    request = jrec["request"].encode()
+
+                except ValueError:
+                    print("Not JSON-Object, trying again.")
             else:
-                print('Client disconnected')
-                break
+                jrec = json.loads(received_string)
+                body = jrec["content"]
+                request = jrec["request"]
 
-    def processData(self, data):
-        decoded = json.loads(data)
-        if (decoded.get['request'] == 'login'):
-            login(decoded.get('username', ''))
-        if not logged_in:
-            return
-        if (decoded['request'] == 'logout'):
-            logout()
-        if (decoded['request'] == 'message'):
-            newMessage(decoded('message'))
+            if request == 'login' and not hasLoggedIn:
+                if handler.hasUser(body):
+                    tid = time.time()
+                    thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
+                    response = {"Timestamp": thisTime, "Sender": "Server", "Response": "Login", "Content": "The username is already in use, please choose another one."}
+                    print type(response)
+                    jsonresponse = json.dumps(response)
+                    self.connection.send(json.dumps(jsonresponse))
 
-    def newMessage(self):
-        if(self.user):
-                sendToAll("[" + datetime.now().time() + "] <" + self.user + "> " + message)
+                else:
+                    handler.addConnection(self)
 
-    def login(self, username):
-        if(not re.match(r'^[A-Za-z0-9_]+$', username)):
-            send({'response': 'login', 'error': 'Invalid username!', 'username': username})
-            return
-        if not username in users: #true hvis ikke logget inn, false hvis allerede logget inn
-            self.username = username
-            users.append(username)                
-            self.logged_in = True
-            send({'response': 'login', 'username': username, 'messages': allMessages})
-            self.broadcast('*** ' + self.username + ' has joined the chat.')
-        else:
-            send({'response': 'login', 'error': 'Name already taken', 'username': username})
+                    user = body
+                    tid = time.time()
+                    thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
+                    response = {"Timestamp": thisTime, "Sender": "Server", "Response": "Login", "Content": "Login Successful."}
+                    jsonresponse = json.dumps(response)
+                    self.connection.send(jsonresponse)
+                    history = handler.getHistory()
+                    response = {"Timestamp": thisTime, "Sender": "Server", "Response": "History", "Content": history}
+                    jsonresponse = json.dumps(response)
+                    self.connection.send(jsonresponse)
+                    print(body+" logged in.")
+                    handler.addUser(str(body))
+            elif request == 'logout':
+                print handler.getUsers()
+                print handler.getConnections()
+                handler.removeUser(str(body))
+                print(body+" logged out.")
+                handler.removeConnection(self)
+                tid = time.time()
+                thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
+                obj = {"Timestamp": thisTime, "Sender": "Server", "Response": "Logout", "Content": "Logout successfull"}
+                self.connection.close()
 
-    def logout(self):
-        if(checkOut(self.username)):
-            send({'respnse': 'logout', 'nick': self.username})
-        else:
-            send({'response': 'logout', 'error':'Not logged in!', 'nick': self.username})
-        self.connection.close()
+            elif request == 'names':
+                tid = time.time()
+                thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
+                response = {"Timestamp": thisTime, "Sender": "Server", "Response": "Names", "Content": userHandler.getUsers()}
+                jsonresponse = json.dumps(response)
+                self.connection.send(jsonresponse)
+            elif request == 'history':
+                    tid = time.time()
+                    thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
+                    history = handler.getHistory()
+                    response = {"Timestamp": thisTime, "Sender": "Server", "Response": "History", "Content": history}
+                    jsonresponse = json.dumps(response)
+                    self.connection.send(jsonresponse)
+            elif request == 'msg':
+                print("Got message: "+body)
+                tid = time.time()
+                thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
+                obj = {"Timestamp": thisTime, "Sender": user, "Response": "Message", "Content": body}
+                jsonresponse = json.dumps(obj)
+                handler.addMessage(jsonresponse)
+                print("Added "+body+" to history")
+                threads = handler.getConnections()
+                tid = time.time()
+                thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
+                response = {"Timestamp": thisTime, "Sender": user, "Response": "Message", "Content": body}
+                jsonresponse = json.dumps(response)
+                for i in threads:
+                    if i == self:
+                        continue
+                    else:
+                        i.connection.send(jsonresponse)
+                    #obj = i.connection.recv(4096)
 
-    def getUser(self, up, port):
-        try:
-            return "Nixo"
-        except:
-            print("User not found"):
-            return "**Invalid User**"
+            #elif request == 'msg' and not hasLoggedIn:
+                #print
+                #tid = time.time()
+                #thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
+                #response = {"Timestamp": thisTime, "Sender": "Server", "Response": "Error", "Content": "You have to be logged in in order to send messages,"}
+                #jsonresponse = json.dumps(response)
+                #self.connection.send(jsonresponse)
 
-    def send(self, data):
-        self.request.sendall(json.dumps(data))
+            # TODO: Add handling of received payload from client
 
-    def send_updates(self):
-        while True:                
-            if self.sentdata < len(allMessages):
-                for i in range(self.sentdata, len(allMessages)):
-                    self.connection.sendall(allMessages[i])
-                    self.sentdata += 1
-            time.sleep(0.2)
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     """
@@ -119,6 +166,8 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
     No alterations is necessary
     """
+
+
     allow_reuse_address = True
 
 if __name__ == "__main__":
@@ -128,9 +177,11 @@ if __name__ == "__main__":
 
     No alterations is necessary
     """
-    HOST, PORT = 'localhost', 9998
+
+    HOST, PORT = '129.241.107.140', 20000
     print 'Server running...'
 
     # Set up and initiate the TCP server
     server = ThreadedTCPServer((HOST, PORT), ClientHandler)
     server.serve_forever()
+
