@@ -84,7 +84,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 if handler.hasUser(body):
                     tid = time.time()
                     thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                    response = {"Timestamp": thisTime, "Sender": "Server", "Response": "Login", "Content": "The username is already in use, please choose another one."}
+                    response = {"Tidsstempel": thisTime, "Avsender": "Server", "Svar": "Innlogging", "Innhold": "Dette brukernavnet er allerede i bruk, vennligst velg et annet."}
                     print type(response)
                     jsonresponse = json.dumps(response)
                     self.connection.send(json.dumps(jsonresponse))
@@ -95,51 +95,51 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                     user = body
                     tid = time.time()
                     thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                    response = {"Timestamp": thisTime, "Sender": "Server", "Response": "Login", "Content": "Login Successful."}
+                    response = {"Tidsstempel": thisTime, "Avsender": "Server", "Svar": "Innlogging", "Innhold": "Innlogging suksessfull."}
                     jsonresponse = json.dumps(response)
                     self.connection.send(jsonresponse)
                     history = handler.getHistory()
-                    response = {"Timestamp": thisTime, "Sender": "Server", "Response": "History", "Content": history}
+                    response = {"Tidsstempel": thisTime, "Avsender": "Server", "Svar": "Historie", "Innhold": history}
                     jsonresponse = json.dumps(response)
                     self.connection.send(jsonresponse)
-                    print(body+" logged in.")
+                    print(body+" logget inn.")
                     handler.addUser(str(body))
             elif request == 'logout':
                 print handler.getUsers()
                 print handler.getConnections()
                 handler.removeUser(str(body))
-                print(body+" logged out.")
+                print(body+" logget ut.")
                 handler.removeConnection(self)
                 tid = time.time()
                 thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                obj = {"Timestamp": thisTime, "Sender": "Server", "Response": "Logout", "Content": "Logout successfull"}
+                obj = {"Tidsstempel": thisTime, "Avsender": "Server", "Svar": "Utlogging", "Innhold": "Utlogging suksessfull"}
                 self.connection.close()
 
             elif request == 'names':
                 tid = time.time()
                 thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                response = {"Timestamp": thisTime, "Sender": "Server", "Response": "Names", "Content": userHandler.getUsers()}
+                response = {"Tidsstempel": thisTime, "Avsender": "Server", "Svar": "Navn", "Innhold": userHandler.getUsers()}
                 jsonresponse = json.dumps(response)
                 self.connection.send(jsonresponse)
             elif request == 'history':
                     tid = time.time()
                     thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
                     history = handler.getHistory()
-                    response = {"Timestamp": thisTime, "Sender": "Server", "Response": "History", "Content": history}
+                    response = {"Tidsstempel": thisTime, "Avsender": "Server", "Svar": "Historie", "Innhold": history}
                     jsonresponse = json.dumps(response)
                     self.connection.send(jsonresponse)
             elif request == 'msg':
-                print("Got message: "+body)
+                print("Fikk Melding: "+body)
                 tid = time.time()
                 thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                obj = {"Timestamp": thisTime, "Sender": user, "Response": "Message", "Content": body}
+                obj = {"Tidsstempel": thisTime, "Avsender": user, "Svar": "Melding", "Innhold": body}
                 jsonresponse = json.dumps(obj)
                 handler.addMessage(jsonresponse)
-                print("Added "+body+" to history")
+                print("Lagt til "+body+" til historien")
                 threads = handler.getConnections()
                 tid = time.time()
                 thisTime = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                response = {"Timestamp": thisTime, "Sender": user, "Response": "Message", "Content": body}
+                response = {"Tidsstempel": thisTime, "Avsender": user, "Svar": "Melding", "Innhold": body}
                 jsonresponse = json.dumps(response)
                 for i in threads:
                     if i == self:
@@ -178,7 +178,7 @@ if __name__ == "__main__":
     No alterations is necessary
     """
 
-    HOST, PORT = '129.241.107.140', 20000
+    HOST, PORT = 'localhost', 9998
     print 'Server running...'
 
     # Set up and initiate the TCP server
