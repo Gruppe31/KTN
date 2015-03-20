@@ -28,21 +28,21 @@ class Client:
         # Initiate the connection to the server
         self.connection.connect((self.host, self.server_port))
         loggedOn = False
-        print("Welcome to SuperAwesome chat. Type -help if you need assistance.")
+        print("Velkommen til denne chatten. Skriv inn -help hvis du trenger hjelp.")
 
         while True:
 
             income = raw_input()
             #income = unicode(rawincome, "utf-8")
             if income == '-help':
-                helpCmd = ['The following commands are useful:'
-                '\n -login: type "login" followed by a return, then a line consisting only of the desired username.'
-                '\n -names: type only this in the console in order to retrieve all of the occupied names in the chatroom.'
-                '\n -logout: type only this in the console in order to log out from the server.']
+                helpCmd = ['Følgende kommandoer er nyttige:'
+                '\n -login: skriv inn "login" og trykk enter, så en linje med ønsket brukernavn.'
+                '\n -names: skriv inn bare dette for å se en liste over alle brukernavn som er opptatt i chatten.'
+                '\n -logout: skriv bare dette for å logge av serveren.']
                 for i in helpCmd:
                     print i
             elif income == '-login':
-                print("Type in your desired username and you will be logged into the server as long as the username is not occupied.")
+                print("Skriv inn ditt ønskede brukernavn og du vil bli logget på serveren så lenge brukernavnet ikker er tatt fra før.")
 
                 income = raw_input()
                 #income = unicode(rawincome, "utf-8")
@@ -50,7 +50,7 @@ class Client:
                 try:
                     jsonobj = json.dumps(obj)
                 except UnicodeDecodeError:
-                    print("Norwegian characters are not allowed.")
+                    print("Norske bokstaver er ikke tillatt.")
                     continue
                 self.send_payload(jsonobj)
                 loggedOn = True
@@ -60,39 +60,39 @@ class Client:
                 try:
                     jsonobj = json.dumps(obj)
                 except UnicodeDecodeError:
-                    print("Norwegian characters are not allowed.")
+                    print("Norske bokstaver er ikke tillatt.")
                     continue
                 self.send_payload(jsonobj)
                 self.disconnect()
                 self.hasloggedOn = False
             elif income == "-logout" and not loggedOn:
-                print("You have to be logged in order to log out.")
+                print("Du må være logget inn for å kunne logge ut.")
             elif income == "-names":
                 obj = {"request": "names", "content": ""}
                 try:
                     jsonobj = json.dumps(obj)
                 except UnicodeDecodeError:
-                    print("Norwegian characters are not allowed.")
+                    print("Norske bokstaver er ikke tillatt.")
                     continue
                 self.send_payload(jsonobj)
 
             elif income == "-history":
                 self.requestHistory()
             elif income == '-Quit':
-                print "Bye"
+                print "Hade bra!"
                 break
             elif income == '-status':
                 print("Connection: "+str(self.connection))
 
             else:
                 if not loggedOn:
-                    print("You have to be logged on in order to chat.")
+                    print("Du må være logget av for å kunne chatte.")
                 elif loggedOn:
                     obj = {"request": "msg", "content": income}
                     try:
                         jsonobj = json.dumps(obj)
                     except UnicodeDecodeError:
-                        print("Norwegian characters are not allowed.")
+                        print("Norske bokstaver er ikke tillatt.")
                         continue
                     self.send_payload(jsonobj)
 
@@ -111,9 +111,9 @@ class Client:
             for i in body:
                 self.receive_message(i)
         elif response == "History" and len(body)==0:
-            print '[Time: ' + time + ']' + '[Sender: ' + sender + ']' + ' Message: No history.'
+            print '[Tid: ' + time + ']' + '[Sender: ' + sender + ']' + ' Melding: No history.'
         else:
-            print '[Time: ' + time + ']' + '[Sender: ' + sender + ']' + ' Message: ' + body
+            print '[Tid: ' + time + ']' + '[Sender: ' + sender + ']' + ' Melding: ' + body
         pass
 
     def send_payload(self, data):
