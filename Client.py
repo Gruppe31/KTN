@@ -45,18 +45,18 @@ class Client:
             elif command == "#navn":
                 #faa navn fra server
                 data = {"request":"names","content":""}
-                package = json.dumps(data)
+                package = json.dump(data)
                 self.send_payload(package)
             elif command == "#logout":
                 data = {"request":"logout","content":username}
-                package = json.dumps(data)
+                package = json.dump(data)
                 self.send_payload(package)
                 self.disconnect()
                 self.hasLoggedOn = False
             elif command == "#historie":
                 #faa historie fra serveren
                 data = {"request":"history","content":""}
-                package = json.dumps(data)
+                package = json.dump(data)
                 self.send_payload(package)
             else:
                 if self.hasLoggedOn:
