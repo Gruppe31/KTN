@@ -61,6 +61,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                     res = {"timestamp":timestamp,"sender":"Server","response":"login","content":"Suksess."}
                     package = json.dumps(res)
                     connections.append(self)
+                    users.append(data)
                     self.connection.send(package)
                     
                 
@@ -90,12 +91,18 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 
             if request == "msg":
                 global history
+                global connection
+                global users
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
+                i = 0
                 for con in connections:
-                    res = {"timestamp":timestamp,"sender":"Server","response":"msg","content": data}
+                    
+                    res = {"timestamp":timestamp,"sender": users[i],"response":"msg","content": data}
+                    history.append(data)
                     package = json.dumps(res)
                     con.connection.send(package)
+                    i += 1
                     
             
             # TODO: Add handling of received payload from client

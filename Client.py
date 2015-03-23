@@ -56,7 +56,7 @@ class Client:
             elif command == "#historie":
                 #faa historie fra serveren
                 data = {"request":"history","content":""}
-                package = json.dump(data)
+                package = json.dumps(data)
                 self.send_payload(package)
             else:
                 if self.hasLoggedOn:
@@ -77,6 +77,24 @@ class Client:
 
     def receive_message(self, message):
         # TODO: Handle incoming message
+        if type(message) != str:
+            received_string = self.connection.recv(4096)
+            try:
+                jsonRec = json.loads(received_string)
+                timestamp = jsonRec["timestamp"].encode()
+                sender = jsonRec["sender"].encode()
+                response = jsonRec["response"].encode()
+                content = jsonRec["content"].encode()
+
+            except ValueError:
+                print("Not JSON-Object, trying again.")
+            else:
+                jsonRec = json.loads(received_string)
+                timestamp = jsonRec["timestamp"]
+                sender = jsonRec["sender"]
+                response = jsonRec["response"]
+                content = jsonRec["content"]
+                
         jsonRec = json.loads(message)
         timestamp = jsonRec["timestamp"]
         sender = jsonRec["sender"]
@@ -89,7 +107,7 @@ class Client:
         if response == "logout":
             print content
         if response == "msg":
-            print content
+            print "[",timestamp,sender,"]",content
         if response == "names":
             print content
             
