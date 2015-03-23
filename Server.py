@@ -27,6 +27,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         self.ip = self.client_address[0]
         self.port = self.client_address[1]
         self.connection = self.request
+        self.username = ""
 
         # Loop that listens for messages from the client
         while True:
@@ -62,6 +63,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                     package = json.dumps(res)
                     connections.append(self)
                     users.append(data)
+                    self.username = data
                     self.connection.send(package)
                     
                 
@@ -84,10 +86,9 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 global history
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                for msg in history:
-                    res = {"timestamp":timestamp,"sender":"Server","response":"history","content": msg}
-                    package = json.dumps(res)
-                    self.connection.send(package)
+                res = {"timestamp":timestamp,"sender":"Server","response":"history","content": history}
+                package = json.dumps(res)
+                self.connection.send(package)
                 
             if request == "msg":
                 global history
@@ -95,14 +96,12 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 global users
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                i = 0
                 for con in connections:
                     
-                    res = {"timestamp":timestamp,"sender": users[i],"response":"msg","content": data}
+                    res = {"timestamp":timestamp,"sender": self.username,"response":"msg","content": data}
                     history.append(data)
                     package = json.dumps(res)
                     con.connection.send(package)
-                    i += 1
                     
             
             # TODO: Add handling of received payload from client
