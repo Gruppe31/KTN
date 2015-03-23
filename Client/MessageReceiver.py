@@ -24,7 +24,7 @@ class MessageReceiver(Thread):
         # TODO: Make MessageReceiver receive and handle payloads
         print("Connection: " + str(self.connection))
         while True:
-            if self.client.hasloggedon:
+            if self.client.hasloggedOn:
                 message = self.connection.recv(4096)
                 if message:
                     self.client.receive_message(message)
