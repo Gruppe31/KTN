@@ -31,16 +31,19 @@ class Client:
         while True:
             command = raw_input('')
             if command == "#logginn":
-                print 'Skriv inn ditt onskede brukernavn'
-                username = raw_input('')
-                data = {"request":"login","content":username}
-                try:
-                    package = json.dumps(data)
-                    self.send_payload(package)
-                    self.hasLoggedOn = True
-                except UnicodeDecodeError:
-                    print("Ikke bruk norske bokstaver.")
-                    continue
+                if not self.hasLoggedOn:
+                    print 'Skriv inn ditt onskede brukernavn'
+                    username = raw_input('')
+                    data = {"request":"login","content":username}
+                    try:
+                        package = json.dumps(data)
+                        self.send_payload(package)
+                        self.hasLoggedOn = True
+                    except UnicodeDecodeError:
+                        print("Ikke bruk norske bokstaver.")
+                        continue
+                else:
+                    print "Du er allerede logget inn"
             elif command == "#hjelp":
                 print ""
                 print "Jeg ser at du trenger hjelp, her er alle kommandoene du kan bruke"
@@ -66,6 +69,7 @@ class Client:
                     self.send_payload(package)
                     self.disconnect()
                     self.hasLoggedOn = False
+                    print "Du har logget ut"
                 elif command == "#historie" and self.hasLoggedOn:
                     #faa historie fra serveren
                     data = {"request":"history","content":""}
