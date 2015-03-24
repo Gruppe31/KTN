@@ -47,8 +47,6 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 request = jrec["request"]
                 
             if request == "login":
-                #login
-                #global users
                 global connections
                 if data in users:
                     tid = time.time()
@@ -66,45 +64,34 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                     self.username = data
                     self.connection.send(package)
                     
-                
-            if request == "names":
-                #names
-                #global users
+            elif request == "names":
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
                 res = {"timestamp":timestamp,"sender":"Server","response":"info","content": ' '.join(users)}
                 package = json.dumps(res)
                 self.connection.send(package)
-            if request == "logout":
-                #logout
-                #global users
-                #global connections
+            
+            elif request == "logout":
                 users.remove(data)
                 connections.remove(self)
-            if request == "history":
-                #history
-                #global history
+            
+            elif request == "history":
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
                 res = {"timestamp":timestamp,"sender":"Server","response":"history".encode(),"content": history}
                 package = json.dumps(res)
                 self.connection.send(package)
                 
-            if request == "msg":
-                #global history
-                #global connection
-                #global users
+            elif request == "msg":
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                print data + " lagt til i historien." 
                 res = {"timestamp":timestamp,"sender": self.username,"response":"message".encode(),"content": data}
                 package = json.dumps(res)
                 history.append(package)
+                print data + " lagt til i historien." 
+                    
                 for con in connections:
                     con.connection.send(package)
-                    
-            
-            # TODO: Add handling of received payload from client
 
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):

@@ -77,23 +77,11 @@ class Client:
 
     def receive_message(self, message):
         # TODO: Handle incoming message
-        if type(message) != str:
-            received_string = self.connection.recv(4096)
-            try:
-                jsonRec = json.loads(received_string)
-                timestamp = jsonRec["timestamp"].encode()
-                sender = jsonRec["sender"].encode()
-                response = jsonRec["response"].encode()
-                content = jsonRec["content"].encode()
-
-            except ValueError:
-                 print("Not JSON-Object, trying again.")
-        else:
-            jsonRec = json.loads(message)
-            timestamp = jsonRec["timestamp"]
-            sender = jsonRec["sender"]
-            response = jsonRec["response"]
-            content = jsonRec["content"]
+        jsonRec = json.loads(message)
+        timestamp = jsonRec["timestamp"]
+        sender = jsonRec["sender"]
+        response = jsonRec["response"]
+        content = jsonRec["content"]
         if response == "history":
             for his in content:            
                 jsonRec = json.loads(his)
@@ -103,12 +91,12 @@ class Client:
                 content = jsonRec["content"]
                 msg = "[" + timestamp + " " + sender + "] " + content
                 print msg
-        if response == "message":
+        elif response == "message":
             msg = "[" + timestamp + " " + sender + "] " + content
             print msg
-        if response == "info":
+        elif response == "info":
             print content
-        if response == "error":
+        elif response == "error":
             print content
             
         
