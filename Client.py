@@ -28,11 +28,10 @@ class Client:
         self.connection.connect((self.host, self.server_port))
         
         while True:
-            command = raw_input()
+            command = raw_input('')
             if command == "#logginn":
                 print 'Skriv inn ditt onskede brukernavn'
-                username = raw_input()
-                print
+                username = raw_input('')
                 data = {"request":"login","content":username}
                 try:
                     package = json.dumps(data)
@@ -46,7 +45,7 @@ class Client:
             elif command == "#navn":
                 #faa navn fra server
                 data = {"request":"names","content":""}
-                package = json.dump(data)
+                package = json.dumps(data)
                 self.send_payload(package)
             elif command == "#logout" and self.hasLoggedOn:
                 data = {"request":"logout","content":username}
@@ -78,14 +77,27 @@ class Client:
 
     def receive_message(self, message):
         # TODO: Handle incoming message
-        jsonRec = json.loads(message)
-        timestamp = jsonRec["timestamp"]
-        sender = jsonRec["sender"]
-        response = jsonRec["response"]
-        content = jsonRec["content"]
-    
+        if type(message) != str:
+            received_string = self.connection.recv(4096)
+            try:
+                jsonRec = json.loads(received_string)
+                timestamp = jsonRec["timestamp"].encode()
+                sender = jsonRec["sender"].encode()
+                response = jsonRec["response"].encode()
+                content = jsonRec["content"].encode()
+
+            except ValueError:
+                 print("Not JSON-Object, trying again.")
+        else:
+            jsonRec = json.loads(message)
+            timestamp = jsonRec["timestamp"]
+            sender = jsonRec["sender"]
+            response = jsonRec["response"]
+            content = jsonRec["content"]
+            
         if response == "history":
-            for word in content:
+            for words in content:
+                word = words.split("<>")
                 msg = "[" + word[1] + " " + word[2] + "] " + word[0]
                 print msg
         if response == "login":
