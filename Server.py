@@ -53,13 +53,13 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 if data in users:
                     tid = time.time()
                     timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                    res = {"timestamp":timestamp,"sender":"Server","response":"login","content":"Brukernavnet er tatt."}
+                    res = {"timestamp":timestamp,"sender":"Server","response":"error","content":"Brukernavnet er tatt."}
                     package = json.dumps(res)
                     self.connection.send(package)
                 else:
                     tid = time.time()
                     timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                    res = {"timestamp":timestamp,"sender":"Server","response":"login","content":"Suksess."}
+                    res = {"timestamp":timestamp,"sender":"Server","response":"history","content":history}
                     package = json.dumps(res)
                     connections.append(self)
                     users.append(data)
@@ -72,7 +72,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 #global users
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                res = {"timestamp":timestamp,"sender":"Server","response":"names","content": ' '.join(users)}
+                res = {"timestamp":timestamp,"sender":"Server","response":"info","content": ' '.join(users)}
                 package = json.dumps(res)
                 self.connection.send(package)
             if request == "logout":
@@ -86,7 +86,6 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 #global history
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                print history
                 res = {"timestamp":timestamp,"sender":"Server","response":"history","content": history}
                 package = json.dumps(res)
                 self.connection.send(package)
@@ -97,13 +96,11 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 #global users
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                print data
-                history.append(data + "<>" + timestamp + "<>" + self.username)
                 print data + " lagt til i historien." 
+                res = {"timestamp":timestamp,"sender": self.username,"response":"message","content": data}
+                package = json.dumps(res)
+                history.append(package)
                 for con in connections:
-                    
-                    res = {"timestamp":timestamp,"sender": self.username,"response":"msg","content": data}
-                    package = json.dumps(res)
                     con.connection.send(package)
                     
             

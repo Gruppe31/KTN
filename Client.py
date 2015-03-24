@@ -96,18 +96,20 @@ class Client:
             content = jsonRec["content"]
             
         if response == "history":
-            for words in content:
-                word = words.split("<>")
-                msg = "[" + word[1] + " " + word[2] + "] " + word[0]
+            for his in content:            
+                jsonRec = json.loads(his)
+                timestamp = jsonRec["timestamp"]
+                sender = jsonRec["sender"]
+                response = jsonRec["response"]
+                content = jsonRec["content"]
+                msg = "[" + timestamp + " " + sender + "] " + content
                 print msg
-        if response == "login":
-            print content
-        if response == "logout":
-            print content
-        if response == "msg":
+        if response == "message":
             msg = "[" + timestamp + " " + sender + "] " + content
             print msg
-        if response == "names":
+        if response == "info":
+            print content
+        if response == "error":
             print content
             
         
