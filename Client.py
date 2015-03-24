@@ -47,13 +47,13 @@ class Client:
                 data = {"request":"names","content":""}
                 package = json.dumps(data)
                 self.send_payload(package)
-            elif command == "#logout" and self.hasLoggedOn:
+            elif command == "#loggut" and self.hasLoggedOn:
                 data = {"request":"logout","content":username}
-                package = json.dump(data)
+                package = json.dumps(data)
                 self.send_payload(package)
                 self.disconnect()
                 self.hasLoggedOn = False
-            elif command == "#historie":
+            elif command == "#historie" and self.hasLoggedOn:
                 #faa historie fra serveren
                 data = {"request":"history","content":""}
                 package = json.dumps(data)

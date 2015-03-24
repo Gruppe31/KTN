@@ -30,6 +30,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         self.username = ""
 
         # Loop that listens for messages from the client
+        clientLoggedIn = False
         while True:
             received_string = self.connection.recv(4096)
             if type(received_string) != str:
@@ -58,31 +59,34 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                     tid = time.time()
                     timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
                     res = {"timestamp":timestamp,"sender":"Server","response":"history","content":history}
+                    clientLoggedIn = True                    
                     package = json.dumps(res)
                     connections.append(self)
                     users.append(data)
                     self.username = data
                     self.connection.send(package)
                     
-            elif request == "names":
+            elif request == "names" and clientLoggedIn:
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
                 res = {"timestamp":timestamp,"sender":"Server","response":"info","content": ' '.join(users)}
                 package = json.dumps(res)
                 self.connection.send(package)
             
-            elif request == "logout":
+            elif request == "logout" and clientLoggedIn:
                 users.remove(data)
                 connections.remove(self)
             
-            elif request == "history":
+            elif request == "history" and clientLoggedIn:
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
                 res = {"timestamp":timestamp,"sender":"Server","response":"history".encode(),"content": history}
                 package = json.dumps(res)
                 self.connection.send(package)
-                
-            elif request == "msg":
+            elif request == "help":
+                #Serveren skal sende tilbake en hjelpemelding
+                pass
+            elif request == "msg" and clientLoggedIn:
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
                 res = {"timestamp":timestamp,"sender": self.username,"response":"message".encode(),"content": data}
@@ -92,6 +96,10 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                     
                 for con in connections:
                     con.connection.send(package)
+            else:
+                timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
+                res = {"timestamp":timestamp,"sender": "Server","response":"error".encode(),"content": "Du har ikke tilgang"}
+                package = json.dumps(res)
 
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
