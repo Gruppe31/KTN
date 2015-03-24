@@ -86,7 +86,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 #global history
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                res = {"timestamp":timestamp,"sender":"Server","response":"history","content": history}
+                res = {"timestamp":timestamp,"sender":"Server","response":"history".encode(),"content": history}
                 package = json.dumps(res)
                 self.connection.send(package)
                 
@@ -97,7 +97,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
                 print data + " lagt til i historien." 
-                res = {"timestamp":timestamp,"sender": self.username,"response":"message","content": data}
+                res = {"timestamp":timestamp,"sender": self.username,"response":"message".encode(),"content": data}
                 package = json.dumps(res)
                 history.append(package)
                 for con in connections:

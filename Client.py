@@ -94,7 +94,6 @@ class Client:
             sender = jsonRec["sender"]
             response = jsonRec["response"]
             content = jsonRec["content"]
-            
         if response == "history":
             for his in content:            
                 jsonRec = json.loads(his)
