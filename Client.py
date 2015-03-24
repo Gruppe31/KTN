@@ -29,9 +29,10 @@ class Client:
         
         while True:
             command = raw_input()
-            if command == "#loggin":
+            if command == "#logginn":
                 print 'Skriv inn ditt onskede brukernavn'
                 username = raw_input()
+                print
                 data = {"request":"login","content":username}
                 try:
                     package = json.dumps(data)
@@ -47,7 +48,7 @@ class Client:
                 data = {"request":"names","content":""}
                 package = json.dump(data)
                 self.send_payload(package)
-            elif command == "#logout":
+            elif command == "#logout" and self.hasLoggedOn:
                 data = {"request":"logout","content":username}
                 package = json.dump(data)
                 self.send_payload(package)
@@ -85,21 +86,17 @@ class Client:
     
         if response == "history":
             for word in content:
-                print word
-            print
+                msg = "[" + word[1] + " " + word[2] + "] " + word[0]
+                print msg
         if response == "login":
-            print
             print content
         if response == "logout":
             print content
-            print
         if response == "msg":
-            print 
             msg = "[" + timestamp + " " + sender + "] " + content
             print msg
         if response == "names":
             print content
-            print
             
         
     def send_payload(self, data):

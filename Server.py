@@ -96,10 +96,11 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 global users
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
+                history.append([data,timestamp,self.username])
                 for con in connections:
                     
                     res = {"timestamp":timestamp,"sender": self.username,"response":"msg","content": data}
-                    history.append(data)
+                    print data + " lagt til i historien."
                     package = json.dumps(res)
                     con.connection.send(package)
                     
