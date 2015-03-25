@@ -84,7 +84,10 @@ class ClientHandler(SocketServer.BaseRequestHandler):
             elif request == "names" and clientLoggedIn:
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
-                res = {"timestamp":timestamp,"sender":"Server","response":"info","content": ' '.join(users)}
+                content = ""
+                for u in users:
+                    content += "\t-"+u
+                res = {"timestamp":timestamp,"sender":"Server","response":"info","content": content}
                 package = json.dumps(res)
                 self.connection.send(package)
             
@@ -108,13 +111,13 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
                 content = "\n" 
-                content += "Jeg ser at du trenger hjelp, her er alle kommandoene du kan bruke"
+                content += "Jeg ser at du trenger hjelp, her er alle kommandoene du kan bruke \n"
                 content += "\n"
-                content += "login : denne bruker du hvis du vil logge inn på serveren"
-                content += "names : vis alle brukere i chatten"
-                content += "history : en liste over alle meldingene på serveren"
-                content += "logout : denne bruker du hvis du vil logge ut av serveren"
-                content += "help : hvis du trenger hjelp bruk denne"
+                content += "login : denne bruker du hvis du vil logge inn på serveren \n"
+                content += "names : vis alle brukere i chatten \n"
+                content += "history : en liste over alle meldingene på serveren \n"
+                content += "logout : denne bruker du hvis du vil logge ut av serveren \n"
+                content += "help : hvis du trenger hjelp bruk denne \n"
                 content += "\n"
                 res = {"timestamp":timestamp,"sender":"Server","response":"info","content":content} 
                 package = json.dumps(res)
@@ -134,6 +137,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
                 res = {"timestamp":timestamp,"sender": "Server","response":"error".encode(),"content": "Du har ikke tilgang"}
                 package = json.dumps(res)
+                self.connection.send(package)
             
 
 
@@ -153,7 +157,7 @@ if __name__ == "__main__":
 
     No alterations is necessary
     """
-    HOST, PORT = 'localhost', 9998
+    HOST, PORT = '78.91.73.200', 9998
     print 'Server running...'
 
     # Set up and initiate the TCP server

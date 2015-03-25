@@ -112,5 +112,5 @@ if __name__ == '__main__':
     in your terminal.
 
     No alterations is necessary
-    """
-    client = Client('localhost', 9998)
+    ."""
+    client = Client('78.91.73.200', 9998)
