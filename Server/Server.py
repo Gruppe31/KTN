@@ -71,7 +71,6 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                         content = jsonRec["content"].encode()
                         res = {"timestamp".encode():timestamp,"sender".encode():sender,"response".encode():"history".encode(),"content".encode():content}                    
                         package = json.dumps(res)
-                        print res
                         self.connection.send(package)
                     clientLoggedIn = True                    
                     res = {"timestamp":timestamp,"sender":"Server","response":"info","content":"Du er logget inn!"}                    

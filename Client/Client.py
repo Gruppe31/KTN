@@ -87,7 +87,7 @@ class Client:
 
     def receive_message(self, message):
         # TODO: Handle incoming message
-        if type(received_string) != str:
+        if type(message) != str:
             received_string = self.connection.recv(4096)
             try:
                 jsonRec = json.loads(received_string)
