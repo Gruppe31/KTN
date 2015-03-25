@@ -26,11 +26,11 @@ class Client:
         
         self.connection.connect((self.host, self.server_port))
         self.msgRec.start()
-        print "Velkommen til denne chatte-appen. Skriv #logginn hvis du vil logge inn. Hvis du har problemer skriv #hjelp"
+        print "Velkommen til denne chatte-appen. Skriv <-login> hvis du vil logge inn. Hvis du har problemer skriv <-help>"
         print ""
         while True:
             command = raw_input('')
-            if command == "login":
+            if command == "-login":
                 print 'Skriv inn ditt onskede brukernavn'
                 username = raw_input('')
                 data = {"request":"login","content":username}
@@ -42,18 +42,18 @@ class Client:
                     print("Ikke bruk norske bokstaver.")
                     continue
                 
-            elif command == "help":#skal faa hjelpemelding fra server
+            elif command == "-help":#skal faa hjelpemelding fra server
                 data = {"request":"help","content":""}
                 package = json.dumps(data)
                 self.send_payload(package)
                 
-            elif command == "names" and self.hasLoggedOn:
+            elif command == "-names" and self.hasLoggedOn:
                 #faa navn fra server
                 data = {"request":"names","content":""}
                 package = json.dumps(data)
                 self.send_payload(package)
                 
-            elif command == "logout" and self.hasLoggedOn:
+            elif command == "-logout" and self.hasLoggedOn:
                 data = {"request":"logout","content":username}
                 package = json.dumps(data)
                 self.send_payload(package)
@@ -62,7 +62,7 @@ class Client:
                 
                 print "Du er naa logget ut"
                 
-            elif command == "history" and self.hasLoggedOn:
+            elif command == "-history" and self.hasLoggedOn:
                 #faa historie fra serveren
                 data = {"request":"history","content":""}
                 package = json.dumps(data)
@@ -92,9 +92,13 @@ class Client:
         sender = jsonRec["sender"]
         response = jsonRec["response"]
         content = jsonRec["content"]
-        if response == "message" or response == "history":
+        if response == "message":
             msg = "[" + timestamp + " " + sender + "] " + content
             print msg
+        elif response == "history":
+            msg = "[" + timestamp + " " + sender + "] " + content
+            print msg
+        
         else:
             print content
 #        elif response == "error":
