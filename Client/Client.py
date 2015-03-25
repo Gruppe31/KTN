@@ -25,7 +25,6 @@ class Client:
         # Initiate the connection to the server
         
         self.msgRec.start()
-        self.connection.connect((self.host, self.server_port))
         
         while True:
             command = raw_input('')
@@ -35,13 +34,14 @@ class Client:
                 data = {"request":"login","content":username}
                 try:
                     package = json.dumps(data)
+                    self.connection.connect((self.host, self.server_port))
                     self.send_payload(package)
                     self.hasLoggedOn = True
                 except UnicodeDecodeError:
                     print("Ikke bruk norske bokstaver.")
                     continue
                 
-            elif command == "#hjelp":
+            elif command == "#hjelp":#skal faa hjelpemelding fra server
                 print "hjelpmelding"
                 
             elif command == "#navn":
@@ -88,22 +88,25 @@ class Client:
         sender = jsonRec["sender"]
         response = jsonRec["response"]
         content = jsonRec["content"]
-        if response == "history":
-            for his in content:            
-                jsonRec = json.loads(his)
-                timestamp = jsonRec["timestamp"]
-                sender = jsonRec["sender"]
-                response = jsonRec["response"]
-                content = jsonRec["content"]
-                msg = "[" + timestamp + " " + sender + "] " + content
-                print msg
-        elif response == "message":
-            msg = "[" + timestamp + " " + sender + "] " + content
-            print msg
-        elif response == "info":
-            print content
-        elif response == "error":
-            print content
+        
+        msg = "[" + response + " " + timestamp + " " + sender + "] " + content
+        print msg
+#        if response == "history":
+#            for his in content:            
+#                jsonRec = json.loads(his)
+#                timestamp = jsonRec["timestamp"]
+#                sender = jsonRec["sender"]
+#                response = jsonRec["response"]
+#                content = jsonRec["content"]
+#                msg = "[" + timestamp + " " + sender + "] " + content
+#                print msg
+#        elif response == "message":
+#            msg = "[" + timestamp + " " + sender + "] " + content
+#            print msg
+#        elif response == "info":
+#            print content
+#        elif response == "error":
+#            print content
             
         
     def send_payload(self, data):
