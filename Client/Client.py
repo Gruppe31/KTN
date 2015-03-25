@@ -98,7 +98,7 @@ class Client:
     
             except ValueError:
                 print("Not JSON-Object, trying again.")
-        else:
+        elif message:
             jsonRec = json.loads(message)
             timestamp = jsonRec["timestamp"]
             sender = jsonRec["sender"]
@@ -130,4 +130,4 @@ if __name__ == '__main__':
 
     No alterations is necessary
     ."""
-    client = Client('78.91.73.200', 9998)
+    client = Client('localhost', 9998)

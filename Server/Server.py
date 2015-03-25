@@ -3,6 +3,7 @@ import SocketServer
 import json
 import datetime
 import time
+import re
 
 users = []
 history = []
@@ -55,6 +56,13 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                     res = {"timestamp":timestamp,"sender":"Server","response":"error","content":"Brukernavnet er tatt."}
                     package = json.dumps(res)
                     self.connection.send(package)
+                elif self.checkUsername(data) == False:
+                    tid = time.time()
+                    timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
+                    res = {"timestamp":timestamp,"sender":"Server","response":"error","content":"Ulovlige bokstaver/tall."}
+                    package = json.dumps(res)
+                    self.connection.send(package)
+                    
                 else:
                     tid = time.time()
                     timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
@@ -71,6 +79,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                         content = jsonRec["content"].encode()
                         res = {"timestamp".encode():timestamp,"sender".encode():sender,"response".encode():"history".encode(),"content".encode():content}                    
                         package = json.dumps(res)
+                        time.sleep(0.1)
                         self.connection.send(package)
                     clientLoggedIn = True                    
                     res = {"timestamp":timestamp,"sender":"Server","response":"info","content":"Du er logget inn!"}                    
@@ -106,6 +115,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                     content = jsonRec["content"]
                     res = {"timestamp":timestamp,"sender":sender,"response":"history","content":content}                    
                     package = json.dumps(res)
+                    time.sleep(0.1)
                     self.connection.send(package)
             elif request == "help":
                 #Serveren skal sende tilbake en hjelpemelding
@@ -141,7 +151,9 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 self.connection.send(package)
             
 
-
+    def checkUsername(self, username):
+        return bool(re.match('[a-zA-Z0-9]', username))
+        
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     """
     This class is present so that each client connected will be ran as a own
@@ -158,7 +170,7 @@ if __name__ == "__main__":
 
     No alterations is necessary
     """
-    HOST, PORT = '78.91.73.200', 9998
+    HOST, PORT = 'localhost', 9998
     print 'Server running...'
 
     # Set up and initiate the TCP server
