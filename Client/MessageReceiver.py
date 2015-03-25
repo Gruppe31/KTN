@@ -27,7 +27,7 @@ class MessageReceiver(Thread):
             try:
                 message = self.connection.recv(4096)
             except:
-                pass                
+                pass
             if message:
                 self.client.receive_message(message)
             else:
