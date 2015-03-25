@@ -47,7 +47,7 @@ class Client:
                 package = json.dumps(data)
                 self.send_payload(package)
                 
-            elif command == "names":
+            elif command == "names" and self.hasLoggedOn:
                 #faa navn fra server
                 data = {"request":"names","content":""}
                 package = json.dumps(data)
@@ -59,6 +59,7 @@ class Client:
                 self.send_payload(package)
                 self.disconnect()
                 self.hasLoggedOn = False
+                
                 print "Du er naa logget ut"
                 
             elif command == "history" and self.hasLoggedOn:
