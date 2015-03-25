@@ -24,9 +24,8 @@ class MessageReceiver(Thread):
     def run(self):
         # TODO: Make MessageReceiver receive and handle payloads
         while True:
-            if self.client.hasLoggedOn:
-                message = self.connection.recv(4096)
-                if message:
-                    self.client.receive_message(message)
-                else:
-                    self.client.disconnect()
+            message = self.connection.recv(4096)
+            if message:
+                self.client.receive_message(message)
+            else:
+                self.client.disconnect()

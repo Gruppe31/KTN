@@ -24,33 +24,36 @@ class Client:
     def run(self):
         # Initiate the connection to the server
         
+        self.connection.connect((self.host, self.server_port))
         self.msgRec.start()
-        
+        print "Velkommen til denne chatte-appen. Skriv #logginn hvis du vil logge inn. Hvis du har problemer skriv #hjelp"
+        print ""
         while True:
             command = raw_input('')
-            if command == "#logginn":
+            if command == "login":
                 print 'Skriv inn ditt onskede brukernavn'
                 username = raw_input('')
                 data = {"request":"login","content":username}
                 try:
                     package = json.dumps(data)
-                    self.connection.connect((self.host, self.server_port))
                     self.send_payload(package)
                     self.hasLoggedOn = True
                 except UnicodeDecodeError:
                     print("Ikke bruk norske bokstaver.")
                     continue
                 
-            elif command == "#hjelp":#skal faa hjelpemelding fra server
-                print "hjelpmelding"
+            elif command == "help":#skal faa hjelpemelding fra server
+                data = {"request":"help","content":""}
+                package = json.dumps(data)
+                self.send_payload(package)
                 
-            elif command == "#navn":
+            elif command == "names":
                 #faa navn fra server
                 data = {"request":"names","content":""}
                 package = json.dumps(data)
                 self.send_payload(package)
                 
-            elif command == "#loggut" and self.hasLoggedOn:
+            elif command == "logout" and self.hasLoggedOn:
                 data = {"request":"logout","content":username}
                 package = json.dumps(data)
                 self.send_payload(package)
@@ -58,7 +61,7 @@ class Client:
                 self.hasLoggedOn = False
                 print "Du er naa logget ut"
                 
-            elif command == "#historie" and self.hasLoggedOn:
+            elif command == "history" and self.hasLoggedOn:
                 #faa historie fra serveren
                 data = {"request":"history","content":""}
                 package = json.dumps(data)
@@ -88,23 +91,11 @@ class Client:
         sender = jsonRec["sender"]
         response = jsonRec["response"]
         content = jsonRec["content"]
-        
-        msg = "[" + response + " " + timestamp + " " + sender + "] " + content
-        print msg
-#        if response == "history":
-#            for his in content:            
-#                jsonRec = json.loads(his)
-#                timestamp = jsonRec["timestamp"]
-#                sender = jsonRec["sender"]
-#                response = jsonRec["response"]
-#                content = jsonRec["content"]
-#                msg = "[" + timestamp + " " + sender + "] " + content
-#                print msg
-#        elif response == "message":
-#            msg = "[" + timestamp + " " + sender + "] " + content
-#            print msg
-#        elif response == "info":
-#            print content
+        if response == "message" or response == "history":
+            msg = "[" + timestamp + " " + sender + "] " + content
+            print msg
+        else:
+            print content
 #        elif response == "error":
 #            print content
             

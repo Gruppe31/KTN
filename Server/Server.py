@@ -47,7 +47,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 data = jrec["content"]
                 request = jrec["request"]
                 
-            if request == "login":
+            if request == "login" and clientLoggedIn ==  False:
                 global connections
                 if data in users:
                     tid = time.time()
@@ -58,6 +58,12 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 else:
                     tid = time.time()
                     timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
+                    content = "#" * 25
+                    content += "Tidligere chathistorie"
+                    content += "#" * 25
+                    res = {"timestamp":timestamp,"sender":"Server","response":"info","content":content}                    
+                    package = json.dumps(res)
+                    self.connection.send(package)
                     for his in history:
                         jsonRec = json.loads(his)
                         timestamp = jsonRec["timestamp"]
@@ -67,6 +73,9 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                         package = json.dumps(res)
                         self.connection.send(package)
                     clientLoggedIn = True                    
+                    res = {"timestamp":timestamp,"sender":"Server","response":"info","content":"Du er logget inn!"}                    
+                    package = json.dumps(res)
+                    self.connection.send(package)
                     connections.append(self)
                     users.append(data)
                     self.username = data
@@ -96,7 +105,20 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                     self.connection.send(package)
             elif request == "help":
                 #Serveren skal sende tilbake en hjelpemelding
-                pass
+                tid = time.time()
+                timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
+                content = "\n" 
+                content += "Jeg ser at du trenger hjelp, her er alle kommandoene du kan bruke"
+                content += "\n"
+                content += "login : denne bruker du hvis du vil logge inn på serveren"
+                content += "names : vis alle brukere i chatten"
+                content += "history : en liste over alle meldingene på serveren"
+                content += "logout : denne bruker du hvis du vil logge ut av serveren"
+                content += "help : hvis du trenger hjelp bruk denne"
+                content += "\n"
+                res = {"timestamp":timestamp,"sender":"Server","response":"info","content":content} 
+                package = json.dumps(res)
+                self.connection.send(package)
             elif request == "msg" and clientLoggedIn:
                 tid = time.time()
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
