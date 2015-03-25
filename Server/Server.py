@@ -69,7 +69,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                         timestamp = jsonRec["timestamp"]
                         sender = jsonRec["sender"]
                         content = jsonRec["content"]
-                        res = {"timestamp":timestamp,"sender":sender,"response":"history","content":content}                    
+                        res = {"timestamp":timestamp,"sender":sender,"response":"history","content":content.encode()}                    
                         package = json.dumps(res)
                         print res
                         self.connection.send(package)
@@ -87,7 +87,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                 timestamp = datetime.datetime.fromtimestamp(tid).strftime('%H:%M:%S')
                 content = ""
                 for u in users:
-                    content += "\t-"+u
+                    content += "\t-"+ u + "\n"
                 res = {"timestamp":timestamp,"sender":"Server","response":"info","content": content}
                 package = json.dumps(res)
                 self.connection.send(package)
