@@ -87,11 +87,24 @@ class Client:
 
     def receive_message(self, message):
         # TODO: Handle incoming message
-        jsonRec = json.loads(message)
-        timestamp = jsonRec["timestamp"]
-        sender = jsonRec["sender"]
-        response = jsonRec["response"]
-        content = jsonRec["content"]
+        if type(received_string) != str:
+            received_string = self.connection.recv(4096)
+            try:
+                jsonRec = json.loads(received_string)
+                timestamp = jsonRec["timestamp"]
+                sender = jsonRec["sender"]
+                response = jsonRec["response"]
+                content = jsonRec["content"]
+    
+            except ValueError:
+                print("Not JSON-Object, trying again.")
+        else:
+            jsonRec = json.loads(message)
+            timestamp = jsonRec["timestamp"]
+            sender = jsonRec["sender"]
+            response = jsonRec["response"]
+            content = jsonRec["content"]
+            
         if response == "message":
             msg = "[" + timestamp + " " + sender + "] " + content
             print msg

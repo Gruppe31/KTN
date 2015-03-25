@@ -66,10 +66,10 @@ class ClientHandler(SocketServer.BaseRequestHandler):
                     self.connection.send(package)
                     for his in history:
                         jsonRec = json.loads(his)
-                        timestamp = jsonRec["timestamp"]
-                        sender = jsonRec["sender"]
-                        content = jsonRec["content"]
-                        res = {"timestamp":timestamp,"sender":sender,"response":"history","content":content.encode()}                    
+                        timestamp = jsonRec["timestamp"].encode()
+                        sender = jsonRec["sender"].encode()
+                        content = jsonRec["content"].encode()
+                        res = {"timestamp".encode():timestamp,"sender".encode():sender,"response".encode():"history".encode(),"content".encode():content}                    
                         package = json.dumps(res)
                         print res
                         self.connection.send(package)
@@ -95,6 +95,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
             elif request == "logout" and clientLoggedIn:
                 users.remove(self.username)
                 connections.remove(self)
+                clientLoggedIn = False
                 self.connection.close()
                 break
                 
