@@ -92,6 +92,7 @@ class Client:
         sender = jsonRec["sender"]
         response = jsonRec["response"]
         content = jsonRec["content"]
+        print content
         if response == "message":
             msg = "[" + timestamp + " " + sender + "] " + content
             print msg
